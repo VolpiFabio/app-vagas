@@ -1,9 +1,13 @@
 import http.client
 import json
+import os
+from dotenv import load_dotenv
+
+load_dotenv()
 
 def buscar_vagas(termo_busca, localizacao):
     host = 'br.jooble.org'
-    key = '1f68e204-af0b-4c18-b9fd-ccdc663e3254'
+    key = os.getenv('jobble_api_key')
     connection = http.client.HTTPConnection(host)
     #request headers
     headers = {"Content-type": "application/json"}

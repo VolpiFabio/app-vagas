@@ -1,8 +1,8 @@
 import streamlit as st
 import requests
 from api_jobble import buscar_vagas
-from api_careerjet import buscar_vagas_careerjet
 import re
+
 
 @st.cache_data
 def carregar_cidades():
@@ -25,10 +25,9 @@ def buscar_todas_vagas(texto, cidade):
     cidade_nome = cidade.split(' - ')[0] if cidade and ' - ' in cidade else cidade
 
     vagas_jobble = buscar_vagas(texto, cidade) if texto else {'jobs': []}
-    vagas_careerjet = buscar_vagas_careerjet(texto, cidade_nome) if texto else []
 
     # Combina as listas e retorna no formato esperado pelo seu código
-    todas_vagas = vagas_jobble.get('jobs', []) + vagas_careerjet    
+    todas_vagas = vagas_jobble.get('jobs', [])    
     return {'jobs': todas_vagas}
 
 st.title('Buscador de Vagas')
@@ -81,6 +80,8 @@ if st.button('🔎 Pesquisar'):
 
     for vaga in resultados['jobs']:
         with st.container():
+            fonte = vaga.get('source', 'Desconhecida')
+            st.markdown(f"**Fonte:** {fonte}")
             st.subheader(vaga['title'])
             st.write(f"**Empresa:** {vaga['company']}")
             st.write(f"**Localização:** {vaga['location']}")
