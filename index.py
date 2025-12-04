@@ -1,5 +1,7 @@
 import streamlit as st
 import requests
+from api_jobble import buscar_vagas
+import re
 
 @st.cache_data
 def carregar_cidades():
@@ -63,8 +65,22 @@ data_final = st.sidebar.date_input(
 
 if st.button('Pesquisar'):
     st.write('Pesquisando...')
-    st.write(texto)
-    st.write(tipo)
-    st.write(estado)
-    st.write(data_inicial)    
-    st.write(data_final)    
+    resultados = buscar_vagas(texto, cidade)
+
+    for vaga in resultados['jobs']:
+        with st.container():
+            st.subheader(vaga['title'])
+            st.write(f"**Empresa:** {vaga['company']}")
+            st.write(f"**Localização:** {vaga['location']}")
+            st.write(f"**Tipo:** {vaga['type']}")
+
+            descricao_limpa = re.sub('<[^<]+?>', '', vaga['snippet'])
+            descricao_limpa = descricao_limpa.replace('&nbsp;', ' ')
+
+            with st.expander('Ver descrição'):
+                st.write(descricao_limpa)
+
+            st.markdown("*Para ver a descrição completa, clique no botão abaixo*")
+
+            st.link_button("Ver vaga", vaga['link'])
+            st.divider()
