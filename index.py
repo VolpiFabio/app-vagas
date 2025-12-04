@@ -83,11 +83,11 @@ if st.button('🔎 Pesquisar'):
             fonte = vaga.get('source', 'Desconhecida')
             st.markdown(f"**Fonte:** {fonte}")
             st.subheader(vaga['title'])
-            st.write(f"**Empresa:** {vaga['company']}")
-            st.write(f"**Localização:** {vaga['location']}")
-            st.write(f"**Tipo:** {vaga['type']}")
+            st.write(f"**Empresa:** {vaga.get('company', 'Não Informado')}")
+            st.write(f"**Localização:** {vaga.get('location', 'Não Informado')}")
+            st.write(f"**Tipo:** {vaga.get('type', 'Não Informado')}")
 
-            descricao_limpa = re.sub('<[^<]+?>', '', vaga['snippet'])
+            descricao_limpa = re.sub('<[^<]+?>', '', vaga.get('snippet', 'Não Informado'))
             descricao_limpa = descricao_limpa.replace('&nbsp;', ' ')
 
             with st.expander('Ver descrição'):
@@ -95,5 +95,5 @@ if st.button('🔎 Pesquisar'):
 
             st.markdown("*Para ver a descrição completa, clique no botão abaixo*")
 
-            st.link_button("Ver vaga", vaga['link'])
+            st.link_button("Ver vaga", vaga.get('link', 'Não Informado'))
             st.divider()
