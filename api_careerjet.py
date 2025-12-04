@@ -1,7 +1,7 @@
 import requests
 from typing import List, Dict
 
-API_KEY = "475ce4cc02ec066dd688054ab2a8a1df"
+API_KEY = ""
 HOSTNAME = 'search.api.careerjet.net'
 PATH = '/v4/query'
 
@@ -72,3 +72,5 @@ def formatar_vagas_careerjet(jobs_raw: List[Dict]) -> List[Dict]:
         vagas_formatadas.append(vaga)
 
     return vagas_formatadas
+
+# descontinuada por enquanto
