@@ -1,8 +1,8 @@
 import streamlit as st
 import requests
-from api_jobble import buscar_vagas
+from api_jooble import buscar_vagas
 import re
-
+from datetime import datetime
 
 @st.cache_data
 def carregar_cidades():
@@ -16,17 +16,15 @@ def carregar_cidades():
             cidade_uf = f"{c['nome']} - {c['microrregiao']['mesorregiao']['UF']['sigla']}"
             lista_cidades.append(cidade_uf)
         except:
-            pass  # ignora se der erro
+            pass  
     
     return lista_cidades
 
 def buscar_todas_vagas(texto, cidade):
-    # Extrai só o nome da cidade para a Careerjet
-    cidade_nome = cidade.split(' - ')[0] if cidade and ' - ' in cidade else cidade
-
+    
     vagas_jobble = buscar_vagas(texto, cidade) if texto else {'jobs': []}
 
-    # Combina as listas e retorna no formato esperado pelo seu código
+    
     todas_vagas = vagas_jobble.get('jobs', [])    
     return {'jobs': todas_vagas}
 
@@ -36,21 +34,22 @@ texto = st.text_input(
     label='Dgite a vaga a ser pesquisada'
 )
 
+
 st.sidebar.header('Filtros')
 
 todas_cidades = carregar_cidades()
 
 tipo = st.sidebar.selectbox(
     label='Tipo de vaga',
-    options=['','Estagio', 'CLT', 'PJ', 'Temporario', 'Freelancer', 'Outros'],
+    options=['', 'Efetivo', 'Contrato', 'Temporário', 'Estágio', 'Tempo integral'],
     index=0
 )
 
-estado = st.sidebar.selectbox(
-    label='Estado da vaga',
-    options=['','Ativa', 'Finalizada'],
-    index=0
-)
+# estado = st.sidebar.selectbox(
+#     label='Estado da vaga',
+#     options=['','Ativa', 'Finalizada'],
+#     index=0
+# )
 
 cidade = st.sidebar.selectbox(
     label='Cidade',
@@ -77,6 +76,31 @@ data_final = st.sidebar.date_input(
 if st.button('🔎 Pesquisar'):
     st.write('Pesquisando...')
     resultados = buscar_todas_vagas(texto, cidade)
+    
+    if cidade:
+        cidade_nome = cidade.split(' - ')[0].lower()
+        resultados['jobs'] = [
+            cid for cid in resultados['jobs']
+            if cidade_nome in cid.get('location', '').lower()
+        ]
+    
+    if data_inicial:
+        resultados['jobs'] = [
+            dta for dta in resultados['jobs']
+            if datetime.fromisoformat (dta['updated']).date() >= data_inicial
+        ]
+        
+    if data_final:
+        resultados['jobs'] = [
+            dtaf for dtaf in resultados['jobs']
+            if datetime.fromisoformat (dtaf['updated']).date() <= data_final
+        ]
+    
+    if tipo:
+        resultados['jobs'] = [
+            tv for tv in resultados['jobs']
+            if tipo.lower() in tv.get('type', '').lower()
+        ]
 
     for vaga in resultados['jobs']:
         with st.container():
@@ -86,6 +110,9 @@ if st.button('🔎 Pesquisar'):
             st.write(f"**Empresa:** {vaga.get('company', 'Não Informado')}")
             st.write(f"**Localização:** {vaga.get('location', 'Não Informado')}")
             st.write(f"**Tipo:** {vaga.get('type', 'Não Informado')}")
+            
+            data_pura = datetime.fromisoformat(vaga['updated']).date()
+            st.write(f"**Data:**", data_pura)
 
             descricao_limpa = re.sub('<[^<]+?>', '', vaga.get('snippet', 'Não Informado'))
             descricao_limpa = descricao_limpa.replace('&nbsp;', ' ')
@@ -97,3 +124,5 @@ if st.button('🔎 Pesquisar'):
 
             st.link_button("Ver vaga", vaga.get('link', 'Não Informado'))
             st.divider()
+            
+            print(resultados['jobs'][0])
