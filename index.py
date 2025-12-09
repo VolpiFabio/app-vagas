@@ -124,5 +124,3 @@ if st.button('🔎 Pesquisar'):
 
             st.link_button("Ver vaga", vaga.get('link', 'Não Informado'))
             st.divider()
-            
-            print(resultados['jobs'][0])
