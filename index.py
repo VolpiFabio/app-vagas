@@ -39,18 +39,6 @@ st.sidebar.header('Filtros')
 
 todas_cidades = carregar_cidades()
 
-tipo = st.sidebar.selectbox(
-    label='Tipo de vaga',
-    options=['', 'Efetivo', 'Contrato', 'Temporário', 'Estágio', 'Tempo integral'],
-    index=0
-)
-
-# estado = st.sidebar.selectbox(
-#     label='Estado da vaga',
-#     options=['','Ativa', 'Finalizada'],
-#     index=0
-# )
-
 cidade = st.sidebar.selectbox(
     label='Cidade',
     options=[''] + todas_cidades,
@@ -96,20 +84,27 @@ if st.button('🔎 Pesquisar'):
             if datetime.fromisoformat (dtaf['updated']).date() <= data_final
         ]
     
-    if tipo:
+    if texto:
         resultados['jobs'] = [
             tv for tv in resultados['jobs']
-            if tipo.lower() in tv.get('type', '').lower()
+            if texto.lower() in tv.get('title', '').lower()
         ]
 
     for vaga in resultados['jobs']:
         with st.container():
-            fonte = vaga.get('source', 'Desconhecida')
+            fonte = vaga.get('source') or 'Não Informado'
             st.markdown(f"**Fonte:** {fonte}")
+            
             st.subheader(vaga['title'])
-            st.write(f"**Empresa:** {vaga.get('company', 'Não Informado')}")
-            st.write(f"**Localização:** {vaga.get('location', 'Não Informado')}")
-            st.write(f"**Tipo:** {vaga.get('type', 'Não Informado')}")
+            
+            empresa = vaga.get('company') or 'Não Informado'
+            st.write(f"**Empresa:** {empresa}")
+            
+            localizacao = vaga.get('location') or 'Não Informado'
+            st.write(f"**Localização:** {localizacao}")
+            
+            tipo_vaga = vaga.get('type') or 'Não Informado'
+            st.write(f"**Tipo:** {tipo_vaga}")
             
             data_pura = datetime.fromisoformat(vaga['updated']).date()
             st.write(f"**Data:**", data_pura)
